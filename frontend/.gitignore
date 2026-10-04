@@ -22,3 +22,31 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+
+# Thư viện
+node_modules/
+
+# Build
+dist/
+dist-ssr/
+build/
+*.local
+
+# Biến môi trường
+.env
+.env.*
+!.env.example
+
+# Log
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Cache và công cụ
+.vite/
+.eslintcache
+*.tsbuildinfo
+coverage/
