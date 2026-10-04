@@ -1,0 +1,36 @@
+# Môi trường ảo
+.venv/
+venv/
+env/
+
+# Biến môi trường (chứa mật khẩu, API key)
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Công cụ kiểm tra và test
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Dữ liệu và file tạm
+*.log
+*.sqlite3
+*.db
+data/
+tmp/
+
+# Model AI tải về (rất nặng)
+models_cache/
+.cache/
+huggingface/
