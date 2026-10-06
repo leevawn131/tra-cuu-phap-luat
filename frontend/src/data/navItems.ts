@@ -4,6 +4,7 @@ export type NavItem = { label: string; href: string; children?: NavChild[] };
 export const navItems: NavItem[] = [
   { label: "Trang chủ", href: "/" },
   { label: "Tra cứu hợp đồng", href: "/hop-dong" },
+  { label: "Hợp đồng mẫu", href: "/hop-dong-mau" },
   {
     label: "Văn bản pháp luật", href: "/van-ban",
     children: [
@@ -31,5 +32,5 @@ export const navItems: NavItem[] = [
       { label: "Từ điển pháp lý", href: "/tien-ich/tu-dien" },
     ],
   },
-  { label: "Giới thiệu", href: "/gioi-thieu" },
+  
 ];
