@@ -1,0 +1,659 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>TCPL</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap">
+<style>
+/* Layout: sidebar theo 4 nhóm chức năng (desktop), thanh dưới + menu "Thêm" (mobile). Màn đọc hợp đồng: văn bản bên trái, bảng phân tích AI bên phải. */
+:root{
+  --bg:#F1F4F2; --surface:#FFFFFF; --surface2:#E8EDEA; --ink:#15211D; --muted:#586861; --line:#D6DED9;
+  --accent:#0E6B5A; --accent-ink:#FFFFFF; --accent-soft:#DCEEE8;
+  --warn:#8F5500; --warn-bg:#FBEBD0; --risk:#A8231C; --risk-bg:#FADCD9; --ok:#1D7048; --ok-bg:#D9EFE1; --mark:#FFE7A0;
+  --font-body:'Be Vietnam Pro',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-display:'Newsreader',Georgia,'Times New Roman',serif;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1613; --surface:#16211D; --surface2:#1E2C27; --ink:#E5EEEA; --muted:#92A49C; --line:#2A3A34;
+  --accent:#4FC3A8; --accent-ink:#06201A; --accent-soft:#1B3A32;
+  --warn:#EAB454; --warn-bg:#3A2D12; --risk:#F28A82; --risk-bg:#3E1C19; --ok:#6FD39B; --ok-bg:#183626; --mark:#5A4A14; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1613; --surface:#16211D; --surface2:#1E2C27; --ink:#E5EEEA; --muted:#92A49C; --line:#2A3A34;
+  --accent:#4FC3A8; --accent-ink:#06201A; --accent-soft:#1B3A32;
+  --warn:#EAB454; --warn-bg:#3A2D12; --risk:#F28A82; --risk-bg:#3E1C19; --ok:#6FD39B; --ok-bg:#183626; --mark:#5A4A14; color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font:400 14.5px/1.55 var(--font-body);
+  padding-block:0 24px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--bg)}
+h1,h2,h3{font-family:var(--font-display);font-weight:600;letter-spacing:-.01em;margin:0;text-wrap:balance}
+h1{font-size:28px;line-height:1.15} h2{font-size:21px} h3{font-size:17px}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:232px minmax(0,1fr);gap:28px;align-items:start}
+.side{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);padding-block:16px;display:flex;flex-direction:column;gap:18px;max-height:calc(100vh - 32px);overflow:auto}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-size:22px;font-weight:600}
+.brand-mark{width:32px;height:32px;border-radius:8px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center}
+.navg{display:flex;flex-direction:column;gap:2px}
+.navg h4{margin:0 0 4px 10px;font:600 11px/1 var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.nav{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;border:0;background:none;text-align:left;width:100%;color:var(--ink)}
+.nav:hover{background:var(--surface2)}
+.nav[aria-current="page"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.nav .badge{margin-left:auto}
+.badge{min-width:20px;height:20px;border-radius:10px;padding:0 6px;background:var(--risk);color:#fff;font:600 11px/20px var(--font-body);text-align:center}
+.main{min-width:0}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;background:var(--bg);display:flex;align-items:center;gap:10px;padding-block:12px}
+.top .brand{display:none}
+.gsearch{flex:1;min-width:0;position:relative}
+.gsearch input{width:100%;padding:10px 12px 10px 38px;border-radius:999px;border:1px solid var(--line);background:var(--surface)}
+.gsearch svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.icon-btn{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;flex:none}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:600;flex:none}
+svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+#view{display:flex;flex-direction:column;gap:20px;padding-block:8px 8px;min-height:60vh}
+.pagehead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.pagehead p{color:var(--muted);margin-top:4px;max-width:62ch}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface);font-weight:500}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.sm{padding:6px 10px;font-size:13px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.card.flat{background:transparent}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.row2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px;align-items:start}
+.stack{display:flex;flex-direction:column;gap:12px}
+.between{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.muted{color:var(--muted)} .small{font-size:12.5px}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap;background:var(--surface2);color:var(--muted)}
+.pill.risk{background:var(--risk-bg);color:var(--risk)} .pill.warn{background:var(--warn-bg);color:var(--warn)}
+.pill.ok{background:var(--ok-bg);color:var(--ok)} .pill.acc{background:var(--accent-soft);color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:13px}
+.chip:hover{border-color:var(--accent)}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.seg{display:inline-flex;background:var(--surface2);border-radius:9px;padding:3px;gap:2px;max-width:100%;overflow-x:auto}
+.seg button{border:0;background:none;padding:6px 12px;border-radius:7px;font-size:13px;font-weight:500;white-space:nowrap;color:var(--muted)}
+.seg button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:12.5px;font-weight:600;color:var(--muted)}
+.field input,.field select,.field textarea,.toolbar input,.toolbar select{padding:9px 11px;border-radius:8px;border:1px solid var(--line);background:var(--surface);width:100%}
+.field textarea{resize:vertical;min-height:140px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.toolbar input[type=search]{flex:1;min-width:200px;width:auto}
+.toolbar select{width:auto}
+.alertbar{display:flex;gap:14px;align-items:flex-start;padding:14px 16px;border-radius:var(--r);background:var(--warn-bg);color:var(--ink);border:1px solid color-mix(in srgb,var(--warn) 35%,transparent)}
+.alertbar svg{color:var(--warn);margin-top:2px}
+.alertbar .grow{flex:1;min-width:0}
+.summary{display:flex;flex-wrap:wrap;gap:6px 22px;color:var(--muted)}
+.summary b{color:var(--ink);font-variant-numeric:tabular-nums}
+/* list rows */
+.rows{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden}
+.rowi{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(0,1fr) minmax(0,1fr) auto;gap:14px;align-items:center;padding:13px 16px;border:0;border-top:1px solid var(--line);background:none;text-align:left;width:100%}
+.rowi:first-child{border-top:0}
+.rowi:hover{background:var(--surface2)}
+.rowi .t{font-weight:600;min-width:0} .rowi .t span{display:block;font-weight:400;color:var(--muted);font-size:13px}
+.rowi .c{min-width:0;font-size:13.5px}
+.rowi .c small{display:block;color:var(--muted);font-size:12px}
+.rowi .num{font-variant-numeric:tabular-nums}
+/* reader */
+.reader{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(300px,1fr);gap:18px;align-items:start}
+.doc{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:28px clamp(16px,4vw,44px)}
+.doc h1{text-align:center;font-size:21px;text-transform:uppercase;letter-spacing:.02em}
+.doc .sub{text-align:center;color:var(--muted);font-size:13px;margin:4px 0 20px}
+.doc .parties{margin-bottom:18px;color:var(--muted)}
+.clause{padding:10px 12px;margin:0 -12px;border-radius:8px;font-family:var(--font-display);font-size:17px;line-height:1.65;transition:background .3s}
+.clause h3{font:600 14px/1.4 var(--font-body);display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:2px}
+.clause.hi{background:var(--accent-soft)}
+.clause.r-high{background:color-mix(in srgb,var(--risk-bg) 55%,transparent)}
+.clause.r-med{background:color-mix(in srgb,var(--warn-bg) 55%,transparent)}
+.term{background:var(--mark);border-radius:3px;padding:0 2px;cursor:help;border-bottom:1.5px dashed var(--warn)}
+.hint{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted);background:var(--surface2);border-radius:8px;padding:8px 12px;margin-bottom:14px}
+.panel{position:sticky;top:calc(env(safe-area-inset-top,0px) + 64px);display:flex;flex-direction:column;gap:12px;min-width:0}
+.panel .body{max-height:calc(100vh - 190px);overflow:auto;display:flex;flex-direction:column;gap:12px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;margin:0}
+.kv dt{color:var(--muted);font-size:13px} .kv dd{margin:0;font-weight:500;text-align:right}
+.riskitem{display:flex;flex-direction:column;gap:6px;padding:12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);text-align:left;width:100%}
+.riskitem:hover{border-color:var(--accent)}
+ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px}
+/* popover */
+.pop{position:fixed;z-index:80;width:min(360px,calc(100vw - 24px));background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.25);padding:14px;display:flex;flex-direction:column;gap:10px;max-height:70vh;overflow:auto}
+.pop blockquote{margin:0;padding:6px 10px;border-radius:6px;background:var(--mark);font-size:13px}
+.law{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--accent);font-weight:600}
+/* chat */
+.chatwrap{display:flex;flex-direction:column;height:calc(100vh - 210px);min-height:420px}
+.msgs{flex:1;overflow:auto;display:flex;flex-direction:column;gap:14px;padding:6px 2px}
+.msg{max-width:min(680px,88%);display:flex;flex-direction:column;gap:8px}
+.msg .bub{padding:11px 14px;border-radius:14px;background:var(--surface);border:1px solid var(--line)}
+.msg.me{align-self:flex-end}
+.msg.me .bub{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.cite{display:inline-flex;gap:6px;align-items:center;padding:4px 9px;border-radius:6px;background:var(--accent-soft);color:var(--accent);font-size:12.5px;font-weight:500}
+.typing span{display:inline-block;width:6px;height:6px;margin-right:3px;border-radius:50%;background:var(--muted);animation:b 1s infinite}
+.typing span:nth-child(2){animation-delay:.15s}.typing span:nth-child(3){animation-delay:.3s}
+@keyframes b{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.composer{display:flex;gap:8px;padding-top:10px}
+.composer input{flex:1;min-width:0;padding:11px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface)}
+/* steps */
+.step{display:grid;grid-template-columns:28px 1fr;gap:12px}
+.step .dot{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;background:var(--surface);color:var(--accent-ink);padding:0}
+.step.done .dot{background:var(--accent);border-color:var(--accent)}
+.bar{height:8px;border-radius:4px;background:var(--surface2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:4px;transition:width .3s}
+/* modal */
+.scrim{position:fixed;inset:0;z-index:70;background:rgba(5,12,10,.55);display:grid;place-items:center;padding:16px}
+.modal{background:var(--surface);border-radius:14px;border:1px solid var(--line);width:min(560px,100%);max-height:88vh;overflow:auto;padding:20px;display:flex;flex-direction:column;gap:14px}
+.drop{border:2px dashed var(--line);border-radius:12px;padding:28px 16px;text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center;background:var(--bg)}
+.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:90;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:13.5px;box-shadow:0 8px 24px rgba(0,0,0,.3);max-width:calc(100vw - 32px)}
+.bottom{display:none}
+.foot{color:var(--muted);font-size:12.5px;display:flex;gap:8px;align-items:flex-start;padding-top:8px}
+.sample{font-size:12px;color:var(--muted)}
+.preview{white-space:pre-wrap;font-family:var(--font-display);font-size:16px;line-height:1.6}
+.sugg{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line)}
+.sugg:first-child{border-top:0}
+@media (max-width:1100px){
+  .reader{grid-template-columns:minmax(0,1fr)}
+  .panel{position:static}.panel .body{max-height:none}
+  .row2{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:960px){
+  .app{grid-template-columns:minmax(0,1fr);gap:0}
+  .side{display:none}
+  .top .brand{display:flex;font-size:19px}
+  .top .brand-mark{width:28px;height:28px}
+  .gsearch{display:none}
+  .top{justify-content:space-between}
+  .top .acts{display:flex;gap:8px}
+  .bottom{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--surface);border-top:1px solid var(--line);padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+  .bottom button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;padding:6px 2px;color:var(--muted);border-radius:8px}
+  .bottom button[aria-current="page"]{color:var(--accent);font-weight:600}
+  body{padding-bottom:84px}
+  .chatwrap{height:calc(100vh - 290px)}
+}
+@media (min-width:961px){.top .acts{display:flex;gap:8px}}
+@media (max-width:720px){
+  h1{font-size:24px}
+  .alertbar{flex-wrap:wrap}.alertbar .grow{flex-basis:calc(100% - 40px)}
+  .rowi{grid-template-columns:minmax(0,1fr) auto;gap:6px 10px}
+  .rowi .c.hide-m{display:none}
+  .pop{left:0!important;right:0;top:auto!important;bottom:calc(66px + env(safe-area-inset-bottom,0px));margin:0 auto}
+  .msg{max-width:94%}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="app">
+  <aside class="side" id="side"></aside>
+  <div class="main">
+    <header class="top">
+      <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span class="bn"></span></div>
+      <div class="gsearch"><svg class="i" viewBox="0 0 24 24"><path d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14z M20 20l-4-4"/></svg>
+        <input id="gs" type="search" placeholder="Tra cứu văn bản luật, số hiệu, từ khóa…" aria-label="Tra cứu nhanh"></div>
+      <div class="acts">
+        <button class="icon-btn" id="themeBtn" aria-label="Đổi giao diện sáng tối"></button>
+        <div class="avatar" title="Tài khoản mẫu">ND</div>
+      </div>
+    </header>
+    <main id="view"></main>
+    <p class="foot" id="foot"></p>
+  </div>
+</div>
+<nav class="bottom" id="bnav" aria-label="Điều hướng chính"></nav>
+<div id="pop" class="pop" hidden></div>
+<div id="modalRoot"></div>
+<div id="toast" class="toast" hidden role="status"></div>
+
+<script>
+const BRAND='TCPL';
+document.querySelectorAll('.bn').forEach(e=>e.textContent=BRAND);
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const P={home:'M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z',
+file:'M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z M14 3v5h5 M9 13h6 M9 17h6',
+pen:'M12 20h9 M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z',
+spark:'M12 3v4 M12 17v4 M3 12h4 M17 12h4 M6 6l2.5 2.5 M15.5 15.5L18 18 M18 6l-2.5 2.5 M8.5 15.5L6 18',
+chat:'M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z',
+route:'M6 3v12 M6 15a3 3 0 1 0 0 6 3 3 0 0 0 0-6z M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M18 9v3a3 3 0 0 1-3 3H9',
+lawyer:'M12 3v18 M5 21h14 M5 7h14 M5 7l-3 7a3 3 0 0 0 6 0z M19 7l-3 7a3 3 0 0 0 6 0z',
+book:'M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z M6.5 17v4H20',
+news:'M4 5h14v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z M18 9h2v10a2 2 0 0 1-2 2 M8 9h6 M8 13h6 M8 17h4',
+camera:'M3 7h4l2-3h6l2 3h4v12H3z M12 11a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z',
+bookmark:'M6 3h12v18l-6-4-6 4z',
+clock:'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z M12 7v5l3 2',
+bell:'M6 9a6 6 0 0 1 12 0c0 6 2.5 8 2.5 8h-17S6 15 6 9z M10 21h4',
+search:'M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14z M20 20l-4-4',
+upload:'M12 16V4 M7 9l5-5 5 5 M4 20h16',plus:'M12 5v14 M5 12h14',check:'M5 12l5 5 10-11',
+alert:'M12 3l10 18H2z M12 10v5 M12 18v.5',send:'M4 12l16-8-6 17-3-7z',more:'M5 12h.01 M12 12h.01 M19 12h.01',
+moon:'M20 14A8 8 0 1 1 10 4a6.5 6.5 0 0 0 10 10z',chev:'M9 6l6 6-6 6',back:'M15 6l-6 6 6 6',x:'M6 6l12 12 M18 6L6 18',
+link:'M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1 M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1',
+shield:'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z',cal:'M4 6h16v14H4z M4 10h16 M8 3v4 M16 3v4',
+pin:'M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11z M12 7.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z'};
+const ic=n=>`<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="${P[n]}"/></svg>`;
+
+/* ---------- dữ liệu mẫu ---------- */
+const today=new Date();today.setHours(0,0,0,0);
+const addDays=n=>{const d=new Date(today);d.setDate(d.getDate()+n);return d};
+const fmt=d=>d.toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit',year:'numeric'});
+const daysLeft=c=>Math.round((c.end-today)/864e5);
+
+const CLAUSES_RENT=c=>[
+ {id:'d1',title:'Điều 1. Đối tượng thuê',text:'Bên A cho Bên B thuê căn nhà số 24, ngõ 5, đường Nguyễn Sỹ Sách, TP. Vinh, diện tích sử dụng 58 m², để Bên B sử dụng làm nơi ở.',plain:'Bạn thuê nguyên căn nhà 58 m² chỉ để ở, không phải để kinh doanh.',law:'BLDS 2015, Điều 472',links:[]},
+ {id:'d2',title:'Điều 2. Thời hạn thuê',risk:'med',riskTitle:'Tự động gia hạn',riskNote:'Hợp đồng tự gia hạn thêm 12 tháng nếu không bên nào báo trước 30 ngày. Bạn dễ bị ràng buộc thêm một năm mà không để ý.',text:`Thời hạn thuê là 12 tháng, từ ngày ${fmt(c.start)} đến hết ngày ${fmt(c.end)}. Hết hạn, nếu không bên nào thông báo bằng văn bản trước 30 ngày thì hợp đồng tự động gia hạn thêm 12 tháng.`,plain:'Nếu không muốn ở tiếp, bạn phải báo bằng văn bản trước ngày hết hạn ít nhất 30 ngày. Quên báo thì hợp đồng kéo dài thêm một năm.',law:'BLDS 2015, Điều 474',links:['d4','d7']},
+ {id:'d3',title:'Điều 3. Giá thuê và thanh toán',risk:'high',riskTitle:'Phạt chậm trả cao',riskNote:'Phạt 0,5% mỗi ngày tương đương khoảng 15% mỗi tháng trên số tiền chậm, cao so với thông lệ. Nên đề nghị giảm hoặc cho thêm ngày ân hạn.',text:'Giá thuê là 6.500.000 đồng/tháng, thanh toán trước ngày 05 hằng tháng. Chậm quá 07 ngày, Bên B chịu phạt vi phạm 0,5%/ngày trên số tiền chậm trả.',plain:'Trả tiền thuê trước ngày 05. Trễ hơn 7 ngày thì mỗi ngày bị tính thêm 0,5% số tiền chưa trả.',law:'BLDS 2015, Điều 418',links:['d7']},
+ {id:'d4',title:'Điều 4. Đặt cọc',risk:'high',riskTitle:'Đặt cọc một chiều',riskNote:'Chỉ ghi Bên B mất cọc khi tự chấm dứt. Không ghi Bên A phải bồi thường khi họ vi phạm. Nên bổ sung điều kiện đối xứng.',text:'Bên B đặt cọc 13.000.000 đồng (tương đương 02 tháng tiền thuê). Nếu Bên B đơn phương chấm dứt hợp đồng trước thời hạn, Bên B mất toàn bộ tiền cọc. Hết hạn hợp đồng, Bên A hoàn trả tiền cọc sau khi trừ các khoản chi phí phát sinh.',plain:'Bạn đưa trước 2 tháng tiền thuê. Bạn rời đi sớm thì mất hết. Chủ nhà thì không có điều khoản tương tự nếu họ vi phạm.',law:'BLDS 2015, Điều 328',links:['d2','d7']},
+ {id:'d5',title:'Điều 5. Quyền và nghĩa vụ của Bên B',risk:'med',riskTitle:'Giá điện nước do Bên A quyết định',riskNote:'Đơn giá điện nước do Bên A thông báo, không gắn với giá nhà nước quy định. Nên ghi rõ cách tính và có công tơ riêng.',text:'Bên B không được cho thuê lại, không sửa chữa kết cấu nếu chưa có văn bản đồng ý của Bên A. Bên B tự chi trả tiền điện, nước theo đơn giá Bên A thông báo.',plain:'Bạn không được cho thuê lại hay sửa nhà nếu chưa có giấy đồng ý. Tiền điện nước tính theo giá chủ nhà thông báo.',law:'Luật Nhà ở 2023',links:[]},
+ {id:'d6',title:'Điều 6. Sự kiện bất khả kháng',text:'Bên không thực hiện được nghĩa vụ do sự kiện bất khả kháng thì không phải chịu trách nhiệm, nhưng phải thông báo cho bên kia trong vòng 07 ngày.',plain:'Gặp thiên tai, dịch bệnh… bạn không bị coi là vi phạm, nhưng phải báo cho chủ nhà trong 7 ngày.',law:'BLDS 2015, Điều 156',links:[]},
+ {id:'d7',title:'Điều 7. Đơn phương chấm dứt hợp đồng',risk:'high',riskTitle:'Bên A chấm dứt chỉ cần báo trước 7 ngày',riskNote:'Bên A được chấm dứt bất cứ lúc nào, báo trước 7 ngày, không nêu bồi thường. Bên B thì mất cọc. Điều khoản lệch hẳn về phía Bên A.',text:'Bên A có quyền đơn phương chấm dứt hợp đồng vào bất kỳ thời điểm nào bằng cách thông báo cho Bên B trước 07 ngày. Bên B muốn chấm dứt trước hạn phải thông báo trước 30 ngày và chịu mất tiền cọc theo Điều 4.',plain:'Chủ nhà có thể yêu cầu bạn dọn đi chỉ sau 7 ngày. Bạn muốn đi thì phải báo trước 30 ngày và mất cọc.',law:'BLDS 2015, Điều 428',links:['d4','d2']},
+ {id:'d8',title:'Điều 8. Giải quyết tranh chấp',text:'Tranh chấp trước hết giải quyết bằng thương lượng. Nếu không thành, đưa ra Tòa án nhân dân có thẩm quyền nơi có căn nhà.',plain:'Có tranh chấp thì thương lượng trước, không được thì kiện ra tòa tại nơi có căn nhà.',law:'Bộ luật Tố tụng dân sự 2015',links:[]}
+];
+const mk=(o)=>Object.assign({status:'active'},o);
+const contracts=[
+ mk({id:'c1',name:'Hợp đồng thuê nhà 24 Nguyễn Sỹ Sách',type:'Thuê nhà',party:'Bà Lê Thị Hoa',value:'6.500.000 đ/tháng',start:addDays(-230),end:addDays(135),alert:'u1'}),
+ mk({id:'c2',name:'Hợp đồng thiết kế website bán hàng',type:'Dịch vụ',party:'Cửa hàng Minh Anh',value:'18.000.000 đ',start:addDays(-70),end:addDays(21)}),
+ mk({id:'c3',name:'Hợp đồng lao động xác định thời hạn',type:'Lao động',party:'Công ty TNHH An Phát',value:'12.000.000 đ/tháng',start:addDays(-300),end:addDays(420)}),
+ mk({id:'c4',name:'Hợp đồng cung cấp hàng hóa quý IV',type:'Mua bán',party:'Công ty CP Vật liệu Bắc Trung Bộ',value:'96.500.000 đ',start:addDays(-15),end:addDays(75)}),
+ mk({id:'c5',name:'Hợp đồng mua bán xe máy',type:'Mua bán',party:'Ông Trần Văn Khánh',value:'28.000.000 đ',start:addDays(-120),end:addDays(-30)})
+];
+contracts.forEach(c=>{c.clauses=CLAUSES_RENT(c)});
+const statusOf=c=>{const d=daysLeft(c);if(d<0)return{k:'expired',l:'Đã hết hạn',cls:''};if(c.alert)return{k:'alert',l:'Luật mới ảnh hưởng',cls:'risk'};if(d<=45)return{k:'soon',l:'Sắp hết hạn',cls:'warn'};return{k:'active',l:'Đang hiệu lực',cls:'ok'}};
+const updates=[
+ {id:'u1',title:'Nghị định hướng dẫn thi hành Luật Nhà ở: sửa quy định về đặt cọc và giá thuê nhà',date:addDays(-2),kind:'Nghị định',affects:[{c:'c1',d:'d4',note:'Quy định mới về mức và điều kiện hoàn trả tiền đặt cọc có thể làm điều khoản bên thuê mất toàn bộ cọc không còn phù hợp.'}]},
+ {id:'u2',title:'Thông tư hướng dẫn về hóa đơn điện tử đối với hộ kinh doanh',date:addDays(-5),kind:'Thông tư',affects:[]},
+ {id:'u3',title:'Quyết định về mức lương tối thiểu vùng áp dụng từ kỳ tới',date:addDays(-9),kind:'Quyết định',affects:[]}
+];
+const termDict={
+ coc:{t:'Đặt cọc',plain:'Số tiền hoặc tài sản giao trước để bảo đảm sẽ ký hoặc thực hiện hợp đồng. Bên đặt cọc từ chối thì mất cọc. Bên nhận cọc từ chối thì phải trả lại cọc và thêm một khoản tương đương, trừ khi hai bên thỏa thuận khác.',law:'BLDS 2015, Điều 328',warn:'Hợp đồng này mới nêu bên thuê mất cọc, chưa nêu bên cho thuê phải bồi thường khi họ vi phạm.',links:['d4','d7']},
+ phat:{t:'Phạt vi phạm',plain:'Khoản tiền bên vi phạm phải trả cho bên kia theo thỏa thuận trong hợp đồng.',law:'BLDS 2015, Điều 418',warn:'0,5% mỗi ngày là khoảng 15% mỗi tháng trên số tiền chậm. Nên đề nghị mức thấp hơn.',links:['d3']},
+ dp:{t:'Đơn phương chấm dứt hợp đồng',plain:'Một bên tự quyết định dừng hợp đồng mà không cần bên kia đồng ý. Chỉ được làm khi hợp đồng hoặc luật cho phép, và thường phải báo trước.',law:'BLDS 2015, Điều 428',warn:'Hai bên đang có thời hạn báo trước khác nhau (7 ngày và 30 ngày).',links:['d7','d4']},
+ bkk:{t:'Bất khả kháng',plain:'Sự kiện khách quan không thể lường trước và không khắc phục được dù đã cố hết sức, ví dụ thiên tai, dịch bệnh. Bên gặp sự kiện này có thể được miễn trách nhiệm.',law:'BLDS 2015, Điều 156',links:['d6']},
+ gh:{t:'Tự động gia hạn',plain:'Hợp đồng tiếp tục có hiệu lực thêm một kỳ mới nếu không ai thông báo dừng đúng hạn.',law:'BLDS 2015, Điều 474',warn:'Cần báo bằng văn bản trước 30 ngày để không bị gia hạn.',links:['d2']}
+};
+const termRe=/(đặt cọc|tiền cọc|phạt vi phạm|đơn phương chấm dứt|bất khả kháng|tự động gia hạn)/gi;
+const termKey=s=>{s=s.toLowerCase();if(/cọc/.test(s))return'coc';if(/phạt/.test(s))return'phat';if(/đơn phương/.test(s))return'dp';if(/bất khả/.test(s))return'bkk';if(/gia hạn/.test(s))return'gh';return null};
+
+const docsDb=[
+ {id:'l1',name:'Bộ luật Dân sự 2015',no:'91/2015/QH13',type:'Luật',field:'Dân sự',status:'ok',from:'01/01/2017'},
+ {id:'l2',name:'Bộ luật Lao động 2019',no:'45/2019/QH14',type:'Luật',field:'Lao động',status:'ok',from:'01/01/2021'},
+ {id:'l3',name:'Luật Nhà ở 2023',no:'27/2023/QH15',type:'Luật',field:'Nhà ở',status:'ok',from:'01/08/2024'},
+ {id:'l4',name:'Luật Đất đai 2024',no:'31/2024/QH15',type:'Luật',field:'Đất đai',status:'ok',from:'01/08/2024'},
+ {id:'l5',name:'Luật Doanh nghiệp 2020',no:'59/2020/QH14',type:'Luật',field:'Doanh nghiệp',status:'ok',from:'01/01/2021'},
+ {id:'l6',name:'Nghị định quy định xử phạt vi phạm hành chính về trật tự, an toàn giao thông đường bộ',no:'168/2024/NĐ-CP',type:'Nghị định',field:'Giao thông',status:'ok',from:'01/01/2025'},
+ {id:'l7',name:'Nghị định quy định xử phạt vi phạm hành chính về giao thông đường bộ và đường sắt',no:'100/2019/NĐ-CP',type:'Nghị định',field:'Giao thông',status:'off',from:'01/01/2020'},
+ {id:'l8',name:'Luật Trật tự, an toàn giao thông đường bộ 2024',no:'36/2024/QH15',type:'Luật',field:'Giao thông',status:'ok',from:'01/01/2025'}
+];
+const statusDoc={ok:['Còn hiệu lực','ok'],off:['Hết hiệu lực','risk'],soon:['Chưa có hiệu lực','warn']};
+
+const procedures=[
+ {id:'p1',name:'Đăng ký hộ kinh doanh',time:'3 đến 5 ngày làm việc',fee:'Theo quy định hiện hành',where:'Cơ quan đăng ký kinh doanh tại địa phương',docs:['Giấy đề nghị đăng ký hộ kinh doanh','Bản sao CCCD của chủ hộ','Giấy tờ chứng minh địa điểm kinh doanh (hợp đồng thuê, giấy chủ quyền)'],
+  steps:[['Chọn ngành nghề và đặt tên','Kiểm tra ngành nghề có điều kiện (cần giấy phép con) trước khi đặt tên hộ kinh doanh.'],['Chuẩn bị hồ sơ','Điền giấy đề nghị, chuẩn bị bản sao giấy tờ tùy thân và giấy tờ về địa điểm.'],['Nộp hồ sơ','Nộp trực tiếp hoặc qua cổng dịch vụ công. Nhận giấy biên nhận.'],['Nhận giấy chứng nhận','Nhận kết quả theo hẹn. Kiểm tra lại thông tin trên giấy.'],['Đăng ký thuế và hóa đơn','Hoàn tất kê khai thuế ban đầu và đăng ký sử dụng hóa đơn điện tử nếu thuộc diện.']]},
+ {id:'p2',name:'Thành lập công ty TNHH một thành viên',time:'3 đến 5 ngày làm việc',fee:'Theo quy định hiện hành',where:'Phòng Đăng ký kinh doanh thuộc Sở Tài chính',docs:['Giấy đề nghị đăng ký doanh nghiệp','Điều lệ công ty','Giấy tờ pháp lý của chủ sở hữu','Danh sách người đại diện theo pháp luật'],
+  steps:[['Đặt tên và chọn trụ sở','Tên không trùng hoặc gây nhầm lẫn với doanh nghiệp đã đăng ký.'],['Soạn điều lệ và hồ sơ','Xác định vốn điều lệ, ngành nghề, người đại diện theo pháp luật.'],['Nộp hồ sơ trực tuyến','Nộp qua cổng thông tin quốc gia về đăng ký doanh nghiệp.'],['Nhận giấy chứng nhận','Nhận Giấy chứng nhận đăng ký doanh nghiệp.'],['Khắc dấu, mở tài khoản, kê khai thuế','Thông báo mẫu dấu, mở tài khoản ngân hàng và hoàn tất thủ tục thuế ban đầu.']]},
+ {id:'p3',name:'Đăng ký tạm trú',time:'Khoảng 3 ngày làm việc',fee:'Theo quy định hiện hành',where:'Công an cấp xã nơi tạm trú',docs:['Tờ khai thay đổi thông tin cư trú','CCCD','Giấy tờ chứng minh chỗ ở hợp pháp (hợp đồng thuê nhà)'],
+  steps:[['Xác định điều kiện','Áp dụng khi bạn ở ngoài nơi thường trú từ một thời hạn nhất định.'],['Chuẩn bị hồ sơ','Điền tờ khai, chuẩn bị hợp đồng thuê nhà và giấy tờ tùy thân.'],['Nộp hồ sơ','Nộp trực tiếp hoặc qua dịch vụ công trực tuyến.'],['Nhận kết quả','Kiểm tra thông tin cư trú đã được cập nhật.']]},
+ {id:'p4',name:'Đăng ký biến động xe sau khi mua bán',time:'Khoảng 2 ngày làm việc',fee:'Theo quy định hiện hành',where:'Cơ quan đăng ký xe thuộc Công an',docs:['Hợp đồng mua bán, giấy tờ chuyển nhượng','Giấy đăng ký xe','CCCD người mua và người bán'],
+  steps:[['Công chứng hoặc chứng thực giấy tờ mua bán','Làm theo yêu cầu đối với loại xe và thời điểm giao dịch.'],['Nộp hồ sơ sang tên','Nộp hồ sơ tại nơi đăng ký xe.'],['Nhận giấy đăng ký mới','Kiểm tra lại biển số và thông tin chủ xe.']]}
+];
+const lawyers=[
+ {id:'y1',name:'LS. Nguyễn Hải Nam',firm:'Văn phòng Luật sư Hải Nam',field:'Hợp đồng',area:'Nghệ An',exp:12,rate:4.8,n:126,fee:'300.000 đ / 30 phút',slots:['Hôm nay 15:00','Hôm nay 16:30','Ngày mai 09:00']},
+ {id:'y2',name:'LS. Phạm Thu Hằng',firm:'Công ty Luật Thu Hằng',field:'Lao động',area:'Nghệ An',exp:9,rate:4.7,n:88,fee:'250.000 đ / 30 phút',slots:['Ngày mai 10:30','Ngày mai 14:00']},
+ {id:'y3',name:'LS. Trần Quốc Việt',firm:'Công ty Luật Quốc Việt',field:'Doanh nghiệp',area:'Hà Nội',exp:15,rate:4.9,n:203,fee:'500.000 đ / 30 phút',slots:['Hôm nay 17:00','Ngày mai 08:30','Ngày mai 15:30']},
+ {id:'y4',name:'LS. Lê Minh Châu',firm:'Văn phòng Luật sư Minh Châu',field:'Nhà đất',area:'TP. Hồ Chí Minh',exp:11,rate:4.6,n:97,fee:'400.000 đ / 30 phút',slots:['Ngày mai 09:30','Ngày mai 13:30']},
+ {id:'y5',name:'LS. Đặng Văn Long',firm:'Công ty Luật Long Thành',field:'Hợp đồng',area:'Hà Nội',exp:7,rate:4.5,n:54,fee:'280.000 đ / 30 phút',slots:['Hôm nay 18:00','Ngày mai 11:00']},
+ {id:'y6',name:'LS. Hoàng Thị Mai',firm:'Văn phòng Luật sư Mai Hoàng',field:'Nhà đất',area:'Nghệ An',exp:14,rate:4.8,n:141,fee:'350.000 đ / 30 phút',slots:['Ngày mai 08:00','Ngày mai 16:00']}
+];
+const news=[
+ {id:'n1',cat:'Hợp đồng',t:'Năm điều khoản trong hợp đồng thuê nhà bạn nên đọc kỹ trước khi ký',d:addDays(-1),r:'4 phút đọc'},
+ {id:'n2',cat:'Lao động',t:'Báo trước bao lâu khi nghỉ việc theo từng loại hợp đồng lao động',d:addDays(-2),r:'3 phút đọc'},
+ {id:'n3',cat:'Doanh nghiệp',t:'Hộ kinh doanh cần lưu ý gì về hóa đơn điện tử',d:addDays(-4),r:'5 phút đọc'},
+ {id:'n4',cat:'Giao thông',t:'Cách tra cứu phạt nguội và nộp phạt đúng nơi',d:addDays(-6),r:'3 phút đọc'},
+ {id:'n5',cat:'Nhà đất',t:'Đặt cọc mua nhà: khi nào được hoàn lại, khi nào mất cọc',d:addDays(-8),r:'6 phút đọc'},
+ {id:'n6',cat:'Hợp đồng',t:'Điều khoản sử dụng của ứng dụng: ba điểm người dùng hay bỏ sót',d:addDays(-11),r:'4 phút đọc'}
+];
+const templates=[
+ {id:'t1',name:'Hợp đồng thuê nhà',desc:'Thuê nhà ở có đặt cọc, kỳ thanh toán và điều khoản trả nhà.',ready:true,
+  fields:[['a','Bên cho thuê (Bên A)','Nguyễn Văn An'],['b','Bên thuê (Bên B)','Trần Thị Bình'],['addr','Địa chỉ nhà cho thuê','24 Nguyễn Sỹ Sách, TP. Vinh'],['price','Giá thuê mỗi tháng (đồng)','6500000'],['dep','Tiền đặt cọc (đồng)','13000000'],['months','Thời hạn (tháng)','12']],
+  body:v=>[`Bên A cho Bên B thuê nhà tại ${v.addr} để làm nơi ở.`,`Thời hạn thuê là ${v.months} tháng kể từ ngày ký.`,`Giá thuê ${money(v.price)} đồng mỗi tháng, thanh toán trước ngày 05 hằng tháng.`,`Bên B đặt cọc ${money(v.dep)} đồng. Tiền cọc được hoàn lại khi kết thúc hợp đồng sau khi trừ các khoản nợ hợp lý có chứng từ.`],
+  sug:[['Hai bên cùng có quyền chấm dứt với thời hạn báo trước như nhau','Cân bằng quyền của Bên A và Bên B.','Mỗi bên có quyền đơn phương chấm dứt hợp đồng bằng cách thông báo bằng văn bản trước 30 ngày.'],['Điều khoản hoàn cọc đối xứng','Bên A vi phạm thì hoàn cọc và bồi thường thêm một khoản tương đương.','Nếu Bên A vi phạm khiến hợp đồng bị chấm dứt, Bên A hoàn trả tiền cọc và bồi thường thêm số tiền bằng tiền cọc.'],['Biên bản bàn giao tài sản','Tránh tranh chấp về hư hỏng khi trả nhà.','Hai bên lập biên bản bàn giao hiện trạng nhà và thiết bị khi nhận và khi trả nhà.']]},
+ {id:'t2',name:'Hợp đồng lao động',desc:'Hợp đồng xác định thời hạn giữa người lao động và người sử dụng lao động.',ready:true,
+  fields:[['a','Người sử dụng lao động','Công ty TNHH An Phát'],['b','Người lao động','Lê Văn Cường'],['job','Chức danh công việc','Nhân viên kinh doanh'],['price','Lương mỗi tháng (đồng)','12000000'],['months','Thời hạn (tháng)','24']],
+  body:v=>[`${v.a} tuyển dụng ${v.b} vào vị trí ${v.job}.`,`Thời hạn hợp đồng ${v.months} tháng kể từ ngày ký.`,`Mức lương ${money(v.price)} đồng mỗi tháng, trả vào ngày 10 hằng tháng.`,`Thời gian làm việc, nghỉ ngơi, bảo hiểm thực hiện theo quy định của Bộ luật Lao động.`],
+  sug:[['Thời hạn báo trước khi nghỉ việc','Ghi đúng thời hạn luật quy định theo loại hợp đồng.','Mỗi bên khi đơn phương chấm dứt hợp đồng phải báo trước theo quy định của Bộ luật Lao động.'],['Bảo mật thông tin','Giới hạn rõ phạm vi thông tin cần giữ kín.','Người lao động không tiết lộ thông tin kinh doanh được đánh dấu bảo mật trong thời gian làm việc và sau khi nghỉ.']]},
+ {id:'t3',name:'Hợp đồng dịch vụ',desc:'Dành cho freelancer và doanh nghiệp nhỏ cung cấp dịch vụ theo sản phẩm bàn giao.',ready:true,
+  fields:[['a','Bên sử dụng dịch vụ','Cửa hàng Minh Anh'],['b','Bên cung cấp dịch vụ','Phạm Văn Dũng'],['job','Nội dung dịch vụ','Thiết kế website bán hàng'],['price','Phí dịch vụ (đồng)','18000000'],['months','Thời gian hoàn thành (ngày)','45']],
+  body:v=>[`${v.b} cung cấp cho ${v.a} dịch vụ: ${v.job}.`,`Thời gian hoàn thành ${v.months} ngày kể từ ngày ký.`,`Phí dịch vụ ${money(v.price)} đồng, chia hai đợt: 50% khi ký, 50% khi nghiệm thu.`],
+  sug:[['Nghiệm thu và chỉnh sửa','Quy định số lần chỉnh sửa miễn phí.','Bên A được yêu cầu chỉnh sửa tối đa 03 lần miễn phí trong 07 ngày sau khi nhận bàn giao.'],['Quyền sở hữu sản phẩm','Rõ ràng ai sở hữu sản phẩm sau khi thanh toán.','Quyền sở hữu sản phẩm chuyển cho Bên A sau khi Bên A thanh toán đủ phí dịch vụ.']]},
+ {id:'t4',name:'Hợp đồng mua bán xe',desc:'Mua bán xe máy, ô tô cá nhân.',ready:false},
+ {id:'t5',name:'Hợp đồng vay tiền',desc:'Vay mượn giữa cá nhân, có lãi suất và kỳ hạn.',ready:false},
+ {id:'t6',name:'Hợp đồng đặt cọc',desc:'Đặt cọc mua bán nhà đất, xe.',ready:false}
+];
+const money=s=>Number(String(s).replace(/\D/g,'')||0).toLocaleString('vi-VN');
+
+/* ---------- state ---------- */
+const S={view:'home',cid:null,rtab:'sum',cflt:'all',cq:'',ctype:'',chat:[],typing:false,
+ dq:'',dtype:'',dfield:'',dstat:'',dtab:'search',nfilter:'',lf:'',la:'',booked:{},
+ pid:'p1',pdone:{},tid:null,tvals:{},textra:{},tosRes:null,saved:['l1','l3'],
+ history:[{t:'Tra cứu: Luật Nhà ở 2023',w:'docs',a:-1},{t:'Mở hợp đồng thuê nhà 24 Nguyễn Sỹ Sách',w:'contracts',a:-1},{t:'Hỏi AI: đặt cọc thuê nhà',w:'chat',a:-3}],
+ fine:null};
+const log=(t,w)=>{S.history.unshift({t,w,a:0});S.history=S.history.slice(0,30)};
+const NAV=[
+ ['Tổng quan',[['home','Tổng quan','home']]],
+ ['Hợp đồng',[['contracts','Hợp đồng của tôi','file'],['templates','Mẫu và soạn thảo','pen'],['tos','Tóm tắt điều khoản','spark']]],
+ ['Tư vấn thủ tục',[['chat','Hỏi AI pháp luật','chat'],['procedures','Hướng dẫn thủ tục','route'],['lawyers','Luật sư','lawyer']]],
+ ['Văn bản và tin tức',[['docs','Tra cứu văn bản','book'],['news','Tin tức pháp luật','news']]],
+ ['Tiện ích',[['fines','Tra cứu phạt nguội','camera'],['saved','Tài liệu đã lưu','bookmark'],['history','Lịch sử','clock']]]
+];
+const TITLES={home:'Tổng quan',contracts:'Hợp đồng của tôi',reader:'Hợp đồng',templates:'Mẫu và soạn thảo',draft:'Soạn hợp đồng',tos:'Tóm tắt điều khoản',chat:'Hỏi AI pháp luật',procedures:'Hướng dẫn thủ tục',lawyers:'Luật sư',docs:'Tra cứu văn bản',news:'Tin tức pháp luật',fines:'Tra cứu phạt nguội',saved:'Tài liệu đã lưu',history:'Lịch sử'};
+const alertCount=()=>contracts.filter(c=>c.alert).length;
+const parentOf=v=>({reader:'contracts',draft:'templates'}[v]||v);
+
+function go(v,opts){Object.assign(S,opts||{});S.view=v;hidePop();render();window.scrollTo(0,0);
+ try{if(TITLES[v]&&!['reader','draft'].includes(v))history.replaceState(null,'','#'+v)}catch(e){}}
+function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>t.hidden=true,2600)}
+function modal(html,wide){const r=$('#modalRoot');r.innerHTML=`<div class="scrim" data-act="closeModal"><div class="modal" role="dialog" aria-modal="true" style="${wide?'width:min(680px,100%)':''}">${html}</div></div>`}
+function closeModal(){$('#modalRoot').innerHTML=''}
+
+/* ---------- chrome ---------- */
+function renderChrome(){
+  const cur=parentOf(S.view);
+  $('#side').innerHTML=`<div class="brand"><span class="brand-mark">${ic('shield')}</span>${BRAND}</div>`+NAV.map(([g,items])=>`<div class="navg"><h4>${g}</h4>${items.map(([id,l,i])=>`<button class="nav" data-go="${id}" ${cur===id?'aria-current="page"':''}>${ic(i)}<span>${l}</span>${id==='contracts'&&alertCount()?`<span class="badge">${alertCount()}</span>`:''}</button>`).join('')}</div>`).join('');
+  document.querySelector('.top .brand-mark').innerHTML=ic('shield');
+  const b=[['home','Tổng quan','home'],['contracts','Hợp đồng','file'],['chat','Hỏi AI','chat'],['procedures','Thủ tục','route'],['more','Thêm','more']];
+  const minor=['templates','tos','lawyers','docs','news','fines','saved','history'];
+  $('#bnav').innerHTML=b.map(([id,l,i])=>`<button ${id==='more'?'data-act="more"':`data-go="${id}"`} ${(cur===id||(id==='more'&&minor.includes(cur)))?'aria-current="page"':''}>${ic(i)}${l}</button>`).join('');
+  $('#themeBtn').innerHTML=ic('moon');
+  $('#foot').innerHTML=`${ic('shield')}<span>${BRAND} hỗ trợ tìm hiểu pháp luật và không thay thế tư vấn của luật sư. Dữ liệu trong bản giao diện này là dữ liệu mẫu, cần đối chiếu với nguồn chính thức.</span>`;
+}
+function render(){renderChrome();const v=S.view;$('#view').innerHTML=({home,contracts:vContracts,reader,templates:vTemplates,draft,tos:vTos,chat:vChat,procedures:vProc,lawyers:vLawyers,docs:vDocs,news:vNews,fines:vFines,saved:vSaved,history:vHistory})[v]();
+  if(v==='chat'){const m=$('.msgs');if(m)m.scrollTop=m.scrollHeight}}
+const head=(t,p,act)=>`<div class="pagehead"><div><h1>${t}</h1>${p?`<p>${p}</p>`:''}</div>${act||''}</div>`;
+const pill=(t,c)=>`<span class="pill ${c||''}">${t}</span>`;
+
+/* ---------- tổng quan ---------- */
+function home(){
+  const soon=contracts.filter(c=>{const d=daysLeft(c);return d>=0&&d<=45});
+  const al=contracts.filter(c=>c.alert);
+  const high=contracts[contracts.findIndex(c=>c.id==='c1')].clauses.filter(x=>x.risk==='high').length;
+  const u1=updates[0];
+  const hour=new Date().getHours();const gr=hour<11?'Chào buổi sáng':hour<18?'Chào buổi chiều':'Chào buổi tối';
+  return `${head(gr,'Tình hình hợp đồng của bạn hôm nay.',`<button class="btn primary" data-act="upload">${ic('upload')}Tải hợp đồng lên</button>`)}
+  ${al.length?`<div class="alertbar">${ic('alert')}<div class="grow"><b>Luật mới ảnh hưởng đến hợp đồng của bạn</b><p>${esc(u1.title)}. ${esc(u1.affects[0].note)}</p></div><button class="btn sm" data-act="openAlert" data-c="c1">Xem điều khoản</button></div>`:''}
+  <div class="summary"><span><b>${contracts.length}</b> hợp đồng</span><span><b>${soon.length}</b> sắp hết hạn</span><span><b>${al.length}</b> cảnh báo luật mới</span><span><b>${high}</b> điều khoản rủi ro cao trong hợp đồng thuê nhà</span></div>
+  <div class="row2">
+   <div class="stack"><h2>Cần xử lý</h2>
+    <div class="rows">
+     ${al.map(c=>`<button class="rowi" style="grid-template-columns:minmax(0,1fr) auto" data-act="openAlert" data-c="${c.id}"><div class="t">${esc(c.name)}<span>Điều 4: quy định mới về đặt cọc cần xem lại</span></div>${pill('Luật mới','risk')}</button>`).join('')}
+     ${soon.map(c=>`<button class="rowi" style="grid-template-columns:minmax(0,1fr) auto" data-act="openC" data-c="${c.id}"><div class="t">${esc(c.name)}<span>Hết hạn ngày ${fmt(c.end)}</span></div>${pill('Còn '+daysLeft(c)+' ngày','warn')}</button>`).join('')}
+    </div>
+    <h2 style="margin-top:8px">Hoạt động gần đây</h2>
+    <div class="rows">${S.history.slice(0,4).map(h=>`<button class="rowi" style="grid-template-columns:minmax(0,1fr) auto" data-go="${h.w}"><div class="t" style="font-weight:500">${esc(h.t)}</div><span class="muted small">${ago(h.a)}</span></button>`).join('')}</div>
+   </div>
+   <div class="stack"><h2>Làm nhanh</h2>
+    <div class="cards" style="grid-template-columns:1fr 1fr">
+     ${[['upload','Tải hợp đồng','Đọc hiểu và tóm tắt','upload'],['chat','Hỏi AI','Có trích dẫn căn cứ','chat'],['templates','Soạn từ mẫu','Mẫu chuẩn, AI gợi ý','pen'],['tos','Tóm tắt điều khoản','Ứng dụng, website','spark']].map(([a,t,d,i])=>`<button class="card" style="text-align:left;display:flex;flex-direction:column;gap:6px" ${a==='upload'?'data-act="upload"':`data-go="${a}"`}><span style="color:var(--accent)">${ic(i)}</span><b>${t}</b><span class="muted small">${d}</span></button>`).join('')}
+    </div>
+    <h2 style="margin-top:8px">Văn bản mới ban hành</h2>
+    <div class="rows">${updates.map(u=>`<button class="rowi" style="grid-template-columns:minmax(0,1fr)" data-act="openUpdates"><div class="t" style="font-weight:500">${esc(u.title)}<span>${u.kind} · ${fmt(u.date)} ${u.affects.length?'· '+pill('Ảnh hưởng hợp đồng của bạn','risk'):''}</span></div></button>`).join('')}</div>
+   </div>
+  </div>`;
+}
+const ago=n=>n===0?'Vừa xong':n>=-1?'Hôm qua':Math.abs(n)+' ngày trước';
+
+/* ---------- danh sách hợp đồng ---------- */
+function vContracts(){
+  const types=[...new Set(contracts.map(c=>c.type))];
+  const list=contracts.filter(c=>{const s=statusOf(c).k;return(S.cflt==='all'||s===S.cflt)&&(!S.ctype||c.type===S.ctype)&&(!S.cq||(c.name+c.party).toLowerCase().includes(S.cq.toLowerCase()))});
+  const f=[['all','Tất cả'],['soon','Sắp hết hạn'],['alert','Luật mới ảnh hưởng'],['active','Đang hiệu lực'],['expired','Đã hết hạn']];
+  return `${head('Hợp đồng của tôi','Lưu tập trung, nhắc ngày hết hạn và cảnh báo khi luật mới ảnh hưởng đến từng điều khoản.',`<button class="btn primary" data-act="upload">${ic('upload')}Tải hợp đồng lên</button>`)}
+  <div class="toolbar"><input type="search" id="cq" placeholder="Tìm theo tên hợp đồng hoặc đối tác" value="${esc(S.cq)}" aria-label="Tìm hợp đồng">
+   <select id="ctype" aria-label="Loại hợp đồng"><option value="">Mọi loại</option>${types.map(t=>`<option ${S.ctype===t?'selected':''}>${t}</option>`).join('')}</select></div>
+  <div class="chips">${f.map(([k,l])=>`<button class="chip" aria-pressed="${S.cflt===k}" data-act="cflt" data-k="${k}">${l}</button>`).join('')}</div>
+  ${list.length?`<div class="rows">${list.map(c=>{const s=statusOf(c),d=daysLeft(c);return `<button class="rowi" data-act="openC" data-c="${c.id}"><div class="t">${esc(c.name)}<span>${c.type} · ${esc(c.party)}</span></div><div class="c hide-m num">${c.value}<small>Giá trị</small></div><div class="c hide-m num">${fmt(c.end)}<small>${d<0?'Đã hết hạn '+(-d)+' ngày':'Còn '+d+' ngày'}</small></div>${pill(s.l,s.cls)}</button>`}).join('')}</div>`:`<div class="card"><b>Không có hợp đồng phù hợp</b><p class="muted">Thử bỏ bộ lọc hoặc tải một hợp đồng mới lên.</p></div>`}`;
+}
+
+/* ---------- đọc hợp đồng ---------- */
+function reader(){
+  const c=contracts.find(x=>x.id===S.cid)||contracts[0];const st=statusOf(c);
+  const doc=`<article class="doc" id="docEl"><h1>Hợp đồng thuê nhà</h1><p class="sub">Số 2026/HĐTN · Ngày ký ${fmt(c.start)}</p>
+   <p class="parties"><b>Bên A (cho thuê):</b> ${esc(c.party)} · <b>Bên B (thuê):</b> bạn</p>
+   <div class="hint">${ic('spark')}<span>Bôi đen một từ hoặc câu bất kỳ để hỏi AI, giống tra từ điển. Từ có nền vàng là thuật ngữ đã được nhận diện.</span></div>
+   ${c.clauses.map(k=>`<section class="clause ${k.risk?'r-'+k.risk:''}" data-clause="${k.id}" id="cl-${k.id}"><h3>${k.title}${k.risk?pill(k.risk==='high'?'Rủi ro cao':'Cần lưu ý',k.risk==='high'?'risk':'warn'):''}${c.alert&&k.id==='d4'?pill('Luật mới','acc'):''}</h3><div class="ct">${esc(k.text).replace(termRe,m=>`<span class="term" data-term="${termKey(m)}">${m}</span>`)}</div></section>`).join('')}</article>`;
+  const tabs=[['sum','Tóm tắt'],['info','Thông tin'],['risk','Rủi ro'],['law','Luật mới']];
+  const risks=c.clauses.filter(k=>k.risk);
+  let body='';
+  if(S.rtab==='sum')body=`<div class="card stack"><b>Tóm tắt bằng AI</b><ul class="plain"><li>Thuê nhà 58 m² để ở, 12 tháng, giá ${c.value}.</li><li>Đặt cọc 2 tháng (13.000.000 đồng), mất cọc nếu bạn rời đi sớm.</li><li>Chủ nhà có thể chấm dứt chỉ với 7 ngày báo trước.</li><li>Hợp đồng tự gia hạn thêm 12 tháng nếu không báo trước 30 ngày.</li></ul>
+   <div class="between"><span class="muted small">${risks.filter(r=>r.risk==='high').length} điều khoản rủi ro cao, ${risks.filter(r=>r.risk==='med').length} cần lưu ý</span><button class="btn sm" data-act="rtab" data-k="risk">Xem rủi ro</button></div></div>
+   <div class="card stack"><b>Nên thương lượng trước khi ký</b><ul class="plain"><li>Đưa quyền chấm dứt và thời hạn báo trước về mức bằng nhau.</li><li>Hạ mức phạt chậm trả hoặc thêm ngày ân hạn.</li><li>Ghi rõ cách tính điện nước.</li></ul></div>`;
+  if(S.rtab==='info')body=`<div class="card"><dl class="kv"><dt>Loại hợp đồng</dt><dd>${c.type}</dd><dt>Đối tác</dt><dd>${esc(c.party)}</dd><dt>Giá trị</dt><dd>${c.value}</dd><dt>Ngày bắt đầu</dt><dd>${fmt(c.start)}</dd><dt>Ngày hết hạn</dt><dd>${fmt(c.end)}</dd><dt>Hạn thanh toán</dt><dd>Ngày 05 hằng tháng</dd><dt>Hạn báo gia hạn</dt><dd>${fmt(new Date(c.end.getTime()-30*864e5))}</dd><dt>Trạng thái</dt><dd>${pill(st.l,st.cls)}</dd></dl></div>
+   <div class="card stack"><b>Nhắc việc</b>${[['Nhắc ngày thanh toán (trước 2 ngày)',1],['Nhắc hạn báo gia hạn (trước 7 ngày)',1],['Nhắc ngày hết hạn (trước 30 ngày)',0]].map(([l,v],i)=>`<label style="display:flex;gap:10px;align-items:center"><input type="checkbox" ${v?'checked':''} id="rm${i}"> ${l}</label>`).join('')}</div>`;
+  if(S.rtab==='risk')body=risks.map(k=>`<button class="riskitem" data-act="goClause" data-k="${k.id}"><div class="between"><b>${esc(k.riskTitle)}</b>${pill(k.risk==='high'?'Cao':'Trung bình',k.risk==='high'?'risk':'warn')}</div><span class="muted small">${k.title}</span><span>${esc(k.riskNote)}</span></button>`).join('');
+  if(S.rtab==='law'){const u=updates.filter(u=>u.affects.some(a=>a.c===c.id));body=u.length?u.map(x=>`<div class="card stack"><div class="between">${pill(x.kind,'acc')}<span class="muted small">${fmt(x.date)}</span></div><b>${esc(x.title)}</b>${x.affects.filter(a=>a.c===c.id).map(a=>`<div class="alertbar" style="padding:10px 12px">${ic('alert')}<div class="grow small">Ảnh hưởng đến ${c.clauses.find(k=>k.id===a.d).title}. ${esc(a.note)}</div></div><button class="btn sm" data-act="goClause" data-k="${a.d}">Đi tới điều khoản</button>`).join('')}</div>`).join(''):`<div class="card"><b>Chưa có văn bản mới ảnh hưởng</b><p class="muted">Hệ thống đang đối chiếu mỗi khi có văn bản mới ban hành.</p></div>`}
+  return `<div class="between" style="justify-content:flex-start"><button class="btn sm" data-go="contracts">${ic('back')}Danh sách</button></div>
+  ${head(esc(c.name),`${c.type} · ${esc(c.party)} · hết hạn ${fmt(c.end)}`,pill(st.l,st.cls))}
+  <div class="reader">${doc}<aside class="panel"><div class="seg" role="tablist">${tabs.map(([k,l])=>`<button role="tab" aria-selected="${S.rtab===k}" data-act="rtab" data-k="${k}">${l}${k==='law'&&c.alert?' ●':''}</button>`).join('')}</div><div class="body">${body}</div></aside></div>`;
+}
+/* popover hỏi AI */
+function hidePop(){const p=$('#pop');if(p)p.hidden=true}
+function showPop(rect,quote,info,clauseEl){
+  const p=$('#pop');const cid=clauseEl?clauseEl.dataset.clause:null;const c=contracts.find(x=>x.id===S.cid)||contracts[0];
+  const cl=c.clauses.find(k=>k.id===cid);
+  const key=info||null;
+  const t=key?termDict[key]:null;
+  const links=(t?t.links:(cl?cl.links:[]));
+  p.innerHTML=`<div class="between"><b>Hỏi AI</b><button class="icon-btn" style="width:30px;height:30px" data-act="hidePop" aria-label="Đóng">${ic('x')}</button></div>
+   <blockquote>${esc(quote.length>140?quote.slice(0,140)+'…':quote)}</blockquote>
+   ${t?`<div><b>${t.t}</b><p>${t.plain}</p></div><div class="law">${ic('book')}${t.law}</div>${t.warn?`<div class="alertbar" style="padding:8px 10px">${ic('alert')}<div class="grow small">${t.warn}</div></div>`:''}`
+   :cl?`<div><b>Trong ${cl.title}</b><p>${cl.plain}</p></div><div class="law">${ic('book')}${cl.law}</div>${cl.risk?`<div class="alertbar" style="padding:8px 10px">${ic('alert')}<div class="grow small">${esc(cl.riskNote)}</div></div>`:''}`
+   :`<p>Đoạn này nằm ngoài các điều khoản. AI sẽ giải thích khi bạn hỏi tiếp trong khung chat.</p>`}
+   ${links.length?`<div><span class="muted small">Điều khoản liên quan</span><div class="chips" style="margin-top:6px">${links.map(id=>`<button class="chip" data-act="goClause" data-k="${id}">${c.clauses.find(k=>k.id===id).title.split('.')[0]}</button>`).join('')}</div></div>`:''}
+   <div class="chips"><button class="btn sm primary" data-act="askSel" data-q="${esc(quote.slice(0,120))}">${ic('chat')}Hỏi tiếp</button><button class="btn sm" data-act="saveSel" data-q="${esc(quote.slice(0,60))}">${ic('bookmark')}Lưu</button></div>`;
+  p.hidden=false;
+  const w=p.offsetWidth,h=p.offsetHeight;
+  let left=Math.min(Math.max(12,rect.left),innerWidth-w-12);
+  let top=rect.bottom+8;if(top+h>innerHeight-12)top=Math.max(12,rect.top-h-8);
+  p.style.left=left+'px';p.style.top=top+'px';
+}
+function onSelect(){
+  setTimeout(()=>{
+    if(S.view!=='reader')return;
+    const sel=getSelection();if(!sel||sel.isCollapsed)return;
+    const txt=sel.toString().trim();if(txt.length<3)return;
+    const doc=$('#docEl');if(!doc||!doc.contains(sel.anchorNode))return;
+    const el=(sel.anchorNode.nodeType===3?sel.anchorNode.parentElement:sel.anchorNode).closest('[data-clause]');
+    showPop(sel.getRangeAt(0).getBoundingClientRect(),txt,termKey(txt),el);
+  },30);
+}
+function flash(id){const el=document.getElementById('cl-'+id);if(!el)return;hidePop();el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('hi');setTimeout(()=>el.classList.remove('hi'),1800)}
+
+/* ---------- mẫu và soạn thảo ---------- */
+function vTemplates(){
+  return `${head('Mẫu và soạn thảo','Mẫu hợp đồng theo biểu mẫu chuẩn. AI gợi ý điều khoản phù hợp với từng trường hợp.')}
+  <div class="cards">${templates.map(t=>`<div class="card stack" style="${t.ready?'':'opacity:.65'}"><span style="color:var(--accent)">${ic('file')}</span><h3>${t.name}</h3><p class="muted">${t.desc}</p><div style="margin-top:auto">${t.ready?`<button class="btn primary sm" data-act="useT" data-t="${t.id}">Dùng mẫu này</button>`:pill('Sắp ra mắt')}</div></div>`).join('')}</div>`;
+}
+function tvals(t){if(S.tid!==t.id||!S.tvals[t.id]){S.tvals[t.id]=Object.fromEntries(t.fields.map(f=>[f[0],f[2]]))}return S.tvals[t.id]}
+function draftText(t){const v=tvals(t);const ex=S.textra[t.id]||[];
+  const parts=[...t.body(v),...ex.map(i=>t.sug[i][2])];
+  return `${t.name.toUpperCase()}\n\nBên A: ${v.a}\nBên B: ${v.b}\n\n`+parts.map((x,i)=>`Điều ${i+1}. ${x}`).join('\n\n')}
+function draft(){
+  const t=templates.find(x=>x.id===S.tid)||templates[0];const v=tvals(t);const ex=S.textra[t.id]||[];
+  return `<div class="between" style="justify-content:flex-start"><button class="btn sm" data-go="templates">${ic('back')}Mẫu hợp đồng</button></div>
+  ${head(t.name,'Điền thông tin bên trái, văn bản bên phải cập nhật ngay.',`<button class="btn primary" data-act="saveDraft">${ic('check')}Lưu vào hợp đồng của tôi</button>`)}
+  <div class="row2" style="grid-template-columns:minmax(0,1fr) minmax(0,1.3fr)">
+   <div class="stack"><div class="card stack">${t.fields.map(f=>`<div class="field"><label for="f-${f[0]}">${f[1]}</label><input id="f-${f[0]}" data-field="${f[0]}" value="${esc(v[f[0]])}"></div>`).join('')}</div>
+    <div class="card"><div class="between"><b>${ic('spark')} AI gợi ý điều khoản</b></div>${t.sug.map((s,i)=>`<div class="sugg"><div><b>${s[0]}</b><p class="muted small">${s[1]}</p></div><button class="btn sm" data-act="togS" data-i="${i}">${ex.includes(i)?'Bỏ':'Thêm'}</button></div>`).join('')}</div></div>
+   <div class="card doc" style="padding:22px"><div class="preview" id="prev">${esc(draftText(t))}</div></div></div>`;
+}
+
+/* ---------- tóm tắt điều khoản ---------- */
+const TOS_SAMPLE='Bằng việc đăng ký tài khoản, bạn đồng ý để chúng tôi thu thập vị trí, danh bạ và lịch sử duyệt web nhằm cải thiện dịch vụ và hiển thị quảng cáo. Chúng tôi có thể chia sẻ dữ liệu với đối tác thứ ba. Gói dùng thử sẽ tự động chuyển sang gói trả phí sau 7 ngày nếu bạn không hủy. Chúng tôi có quyền thay đổi điều khoản bất kỳ lúc nào mà không cần thông báo trước. Mọi tranh chấp được giải quyết tại tòa án do chúng tôi lựa chọn.';
+function vTos(){
+  const r=S.tosRes;
+  return `${head('Tóm tắt điều khoản','Dán điều khoản sử dụng của ứng dụng hoặc website để biết bạn đang đồng ý với điều gì trước khi bấm "Đồng ý".')}
+  <div class="row2" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)"><div class="card stack"><div class="field"><label for="tosIn">Nội dung điều khoản</label><textarea id="tosIn" placeholder="Dán nội dung điều khoản vào đây">${esc(S.tosText||'')}</textarea></div>
+   <div id="tosErr" class="small" style="color:var(--risk)" role="alert"></div>
+   <div class="chips"><button class="btn primary" data-act="tosRun">${ic('spark')}Tóm tắt</button><button class="btn" data-act="tosSample">Dùng điều khoản mẫu</button></div></div>
+   <div class="stack">${S.tosBusy?`<div class="card"><span class="typing"><span></span><span></span><span></span></span> Đang đọc và phân loại điều khoản…</div>`:r?`
+   ${[['Bạn đang đồng ý với','acc',['Cho phép thu thập vị trí, danh bạ và lịch sử duyệt web','Dữ liệu có thể được chia sẻ với đối tác thứ ba']],['Cần cân nhắc','risk',['Gói dùng thử tự chuyển sang trả phí sau 7 ngày','Bên cung cấp được đổi điều khoản mà không báo trước','Tranh chấp xử lý tại tòa do bên cung cấp chọn']],['Việc nên làm','ok',['Tắt quyền truy cập danh bạ nếu không cần','Đặt nhắc hủy trước ngày thứ 7 của gói dùng thử']]].map(([t,c,l])=>`<div class="card stack"><div>${pill(t,c)}</div><ul class="plain">${l.map(x=>`<li>${x}</li>`).join('')}</ul></div>`).join('')}`:`<div class="card muted">Kết quả tóm tắt sẽ hiện ở đây, chia theo nội dung bạn đồng ý, điểm cần cân nhắc và việc nên làm.</div>`}</div></div>`;
+}
+
+/* ---------- chat ---------- */
+const CHIPS=['Đặt cọc thuê nhà bị mất khi nào?','Nghỉ việc phải báo trước bao lâu?','Đăng ký hộ kinh doanh cần giấy tờ gì?'];
+const botReply=q=>{const s=q.toLowerCase();
+ if(/cọc/.test(s))return{t:'Theo Bộ luật Dân sự 2015, đặt cọc là việc một bên giao cho bên kia tiền hoặc tài sản để bảo đảm giao kết hoặc thực hiện hợp đồng. Nếu hợp đồng được thực hiện, tiền cọc được trả lại hoặc trừ vào nghĩa vụ thanh toán. Bên đặt cọc từ chối thì mất cọc. Bên nhận cọc từ chối thì phải trả lại cọc và thêm một khoản tương đương, trừ khi hai bên có thỏa thuận khác.',c:['BLDS 2015, Điều 328'],f:['Tôi có thể đòi lại cọc khi chủ nhà đuổi sớm không?','Soạn điều khoản cọc đối xứng']};
+ if(/nghỉ việc|báo trước|chấm dứt hợp đồng lao động|lao động/.test(s))return{t:'Theo Bộ luật Lao động 2019, người lao động được đơn phương chấm dứt hợp đồng nhưng phải báo trước: ít nhất 45 ngày với hợp đồng không xác định thời hạn, 30 ngày với hợp đồng từ 12 đến 36 tháng, và 3 ngày làm việc với hợp đồng dưới 12 tháng. Một số trường hợp luật cho phép nghỉ không cần báo trước, ví dụ không được trả lương đúng hạn.',c:['Bộ luật Lao động 2019, Điều 35'],f:['Trường hợp nào được nghỉ không cần báo trước?','Soạn đơn xin nghỉ việc']};
+ if(/kinh doanh|hộ kinh doanh|thành lập/.test(s))return{t:'Để đăng ký hộ kinh doanh, bạn thường cần giấy đề nghị đăng ký, bản sao giấy tờ tùy thân của chủ hộ và giấy tờ chứng minh địa điểm kinh doanh. Hồ sơ nộp tại cơ quan đăng ký kinh doanh ở địa phương. Với ngành nghề có điều kiện, bạn cần giấy phép riêng. Mình đã soạn hướng dẫn từng bước ở mục Hướng dẫn thủ tục.',c:['Hướng dẫn thủ tục: Đăng ký hộ kinh doanh'],f:['Mở hướng dẫn từng bước','Tôi cần hóa đơn điện tử không?']};
+ return{t:'Mình cần thêm một chút thông tin để trả lời chính xác. Bạn đang hỏi về hợp đồng, lao động, kinh doanh hay thủ tục hành chính? Nếu liên quan đến hợp đồng đã lưu, hãy nói rõ tên hợp đồng.',c:[],f:CHIPS};};
+function vChat(){
+  if(!S.chat.length)S.chat.push({r:'bot',t:'Xin chào, mình trả lời câu hỏi pháp luật 24/7 bằng ngôn ngữ dễ hiểu và luôn kèm căn cứ pháp lý. Bạn muốn hỏi gì?',c:[],f:CHIPS});
+  const last=S.chat[S.chat.length-1];
+  return `${head('Hỏi AI pháp luật','Câu trả lời có trích dẫn điều luật cụ thể. Với vấn đề phức tạp, hãy đặt lịch với luật sư.',`<button class="btn" data-go="lawyers">${ic('lawyer')}Hỏi luật sư</button>`)}
+  <div class="card chatwrap" style="padding:14px"><div class="msgs" id="msgs">${S.chat.map(m=>`<div class="msg ${m.r==='me'?'me':''}"><div class="bub">${esc(m.t)}</div>${m.c&&m.c.length?`<div class="chips">${m.c.map(x=>`<span class="cite">${ic('book')}${esc(x)}</span>`).join('')}</div>`:''}</div>`).join('')}${S.typing?`<div class="msg"><div class="bub typing"><span></span><span></span><span></span></div></div>`:''}
+   ${!S.typing&&last.r==='bot'&&last.f?`<div class="chips">${last.f.map(f=>`<button class="chip" data-act="ask" data-q="${esc(f)}">${esc(f)}</button>`).join('')}</div>`:''}</div>
+   <form class="composer" id="chatForm"><input id="chatIn" placeholder="Nhập câu hỏi pháp luật của bạn" aria-label="Câu hỏi" autocomplete="off"><button class="btn primary" aria-label="Gửi">${ic('send')}</button></form></div>`;
+}
+function ask(q){q=q.trim();if(!q||S.typing)return;S.chat.push({r:'me',t:q});S.typing=true;log('Hỏi AI: '+q,'chat');render();
+  setTimeout(()=>{const r=botReply(q);S.chat.push({r:'bot',t:r.t,c:r.c,f:r.f});S.typing=false;if(S.view==='chat')render()},900)}
+
+/* ---------- thủ tục ---------- */
+function vProc(){
+  const p=procedures.find(x=>x.id===S.pid);const done=S.pdone[p.id]||[];const pct=Math.round(done.length/p.steps.length*100);
+  return `${head('Hướng dẫn thủ tục','Quy trình theo từng bước, hồ sơ cần chuẩn bị và nơi nộp.')}
+  <div class="chips">${procedures.map(x=>`<button class="chip" aria-pressed="${x.id===S.pid}" data-act="selP" data-p="${x.id}">${x.name}</button>`).join('')}</div>
+  <div class="row2" style="grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)">
+   <div class="card stack"><div class="between"><h2>${p.name}</h2>${pill(pct+'% hoàn thành',pct===100?'ok':'acc')}</div><div class="bar"><i style="width:${pct}%"></i></div>
+    ${p.steps.map((s,i)=>`<div class="step ${done.includes(i)?'done':''}"><button class="dot" data-act="togP" data-i="${i}" aria-label="Đánh dấu bước ${i+1}" aria-pressed="${done.includes(i)}">${done.includes(i)?ic('check'):''}</button><div><b>${s[0]}</b><p class="muted">${s[1]}</p></div></div>`).join('')}</div>
+   <div class="stack"><div class="card"><dl class="kv"><dt>Thời gian</dt><dd>${p.time}</dd><dt>Lệ phí</dt><dd>${p.fee}</dd><dt>Nơi nộp</dt><dd>${p.where}</dd></dl></div>
+    <div class="card stack"><b>Hồ sơ cần chuẩn bị</b><ul class="plain">${p.docs.map(d=>`<li>${d}</li>`).join('')}</ul></div>
+    <button class="btn" data-act="askProc" data-q="${esc(p.name)}">${ic('chat')}Hỏi AI về thủ tục này</button></div></div>`;
+}
+
+/* ---------- luật sư ---------- */
+function vLawyers(){
+  const fields=[...new Set(lawyers.map(l=>l.field))],areas=[...new Set(lawyers.map(l=>l.area))];
+  const list=lawyers.filter(l=>(!S.lf||l.field===S.lf)&&(!S.la||l.area===S.la));
+  return `${head('Luật sư','Gợi ý luật sư theo lĩnh vực và khu vực. Đặt lịch tư vấn ngay trên phần mềm.')}
+  <div class="toolbar"><select id="lf" aria-label="Lĩnh vực"><option value="">Mọi lĩnh vực</option>${fields.map(f=>`<option ${S.lf===f?'selected':''}>${f}</option>`).join('')}</select>
+   <select id="la" aria-label="Khu vực"><option value="">Mọi khu vực</option>${areas.map(f=>`<option ${S.la===f?'selected':''}>${f}</option>`).join('')}</select><span class="sample">Hồ sơ luật sư là dữ liệu mẫu</span></div>
+  <div class="cards" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))">${list.map(l=>`<div class="card stack"><div class="between" style="justify-content:flex-start;gap:12px"><div class="avatar" style="width:46px;height:46px">${l.name.split(' ').slice(-1)[0][0]}</div><div style="min-width:0"><b>${l.name}</b><div class="muted small">${l.firm}</div></div></div>
+   <div class="chips">${pill(l.field,'acc')}${pill(l.area)}${pill(l.exp+' năm kinh nghiệm')}</div>
+   <div class="between"><span><b>${l.rate}</b> <span class="muted small">(${l.n} đánh giá)</span></span><span class="muted small">${l.fee}</span></div>
+   ${S.booked[l.id]?`<div class="alertbar" style="background:var(--ok-bg);border-color:transparent">${ic('check')}<div class="grow small">Đã đặt lịch: <b>${S.booked[l.id]}</b></div></div>`:`<div class="chips">${l.slots.map(s=>`<button class="chip" data-act="book" data-l="${l.id}" data-s="${s}">${s}</button>`).join('')}</div>`}</div>`).join('')}</div>`;
+}
+
+/* ---------- văn bản ---------- */
+function vDocs(){
+  const q=S.dq.toLowerCase();
+  const list=docsDb.filter(d=>(!q||(d.name+d.no).toLowerCase().includes(q))&&(!S.dtype||d.type===S.dtype)&&(!S.dfield||d.field===S.dfield)&&(!S.dstat||d.status===S.dstat));
+  const fields=[...new Set(docsDb.map(d=>d.field))];
+  const seg=`<div class="seg" role="tablist"><button role="tab" aria-selected="${S.dtab==='search'}" data-act="dtab" data-k="search">Tra cứu</button><button role="tab" aria-selected="${S.dtab==='new'}" data-act="dtab" data-k="new">Mới ban hành</button></div>`;
+  if(S.dtab==='new')return `${head('Tra cứu văn bản','Văn bản mới được đối chiếu với từng điều khoản trong hợp đồng của bạn.',seg)}<div class="stack">${updates.map(u=>`<div class="card stack"><div class="between"><div class="chips">${pill(u.kind,'acc')}${u.affects.length?pill('Ảnh hưởng hợp đồng của bạn','risk'):pill('Chưa ảnh hưởng hợp đồng nào')}</div><span class="muted small">${fmt(u.date)}</span></div><b>${esc(u.title)}</b>${u.affects.map(a=>{const c=contracts.find(x=>x.id===a.c);return `<div class="alertbar" style="padding:10px 12px">${ic('alert')}<div class="grow small"><b>${esc(c.name)}</b>, ${c.clauses.find(k=>k.id===a.d).title}. ${esc(a.note)}</div><button class="btn sm" data-act="openAlert" data-c="${a.c}">Xem</button></div>`}).join('')}</div>`).join('')}</div>`;
+  return `${head('Tra cứu văn bản','Tìm luật, nghị định, thông tư theo từ khóa, số hiệu, lĩnh vực và tình trạng hiệu lực.',seg)}
+  <div class="toolbar"><input type="search" id="dq" placeholder="Từ khóa hoặc số hiệu, ví dụ 91/2015/QH13" value="${esc(S.dq)}" aria-label="Từ khóa">
+   <select id="dtype" aria-label="Loại văn bản"><option value="">Mọi loại</option><option ${S.dtype==='Luật'?'selected':''}>Luật</option><option ${S.dtype==='Nghị định'?'selected':''}>Nghị định</option></select>
+   <select id="dfield" aria-label="Lĩnh vực"><option value="">Mọi lĩnh vực</option>${fields.map(f=>`<option ${S.dfield===f?'selected':''}>${f}</option>`).join('')}</select>
+   <select id="dstat" aria-label="Hiệu lực"><option value="">Mọi tình trạng</option><option value="ok" ${S.dstat==='ok'?'selected':''}>Còn hiệu lực</option><option value="off" ${S.dstat==='off'?'selected':''}>Hết hiệu lực</option></select></div>
+  <p class="muted small">${list.length} kết quả</p>
+  ${list.length?`<div class="rows">${list.map(d=>`<button class="rowi" style="grid-template-columns:minmax(0,1fr) auto" data-act="openDoc" data-d="${d.id}"><div class="t">${esc(d.name)}<span>${d.no} · ${d.type} · ${d.field} · hiệu lực từ ${d.from}</span></div>${pill(statusDoc[d.status][0],statusDoc[d.status][1])}</button>`).join('')}</div>`:`<div class="card"><b>Không tìm thấy văn bản</b><p class="muted">Thử từ khóa ngắn hơn hoặc bỏ bớt bộ lọc.</p></div>`}`;
+}
+function openDoc(id){const d=docsDb.find(x=>x.id===id);const sv=S.saved.includes(id);log('Xem: '+d.name,'docs');
+  modal(`<div class="between"><div class="chips">${pill(d.type,'acc')}${pill(statusDoc[d.status][0],statusDoc[d.status][1])}</div><button class="icon-btn" data-act="closeModal" aria-label="Đóng">${ic('x')}</button></div><h2>${esc(d.name)}</h2>
+  <dl class="kv"><dt>Số hiệu</dt><dd>${d.no}</dd><dt>Lĩnh vực</dt><dd>${d.field}</dd><dt>Hiệu lực từ</dt><dd>${d.from}</dd></dl>
+  ${d.status==='off'?`<div class="alertbar">${ic('alert')}<div class="grow small">Văn bản này đã hết hiệu lực. Kiểm tra văn bản thay thế trước khi áp dụng.</div></div>`:''}
+  <div class="chips"><button class="btn primary" data-act="saveDoc" data-d="${id}">${ic('bookmark')}${sv?'Bỏ lưu':'Lưu tài liệu'}</button><button class="btn" data-act="askDoc" data-q="${esc(d.name)}">${ic('chat')}Hỏi AI về văn bản này</button></div>
+  <p class="sample">Nội dung đầy đủ sẽ lấy từ Cơ sở dữ liệu quốc gia về văn bản pháp luật.</p>`);}
+
+/* ---------- tin tức, tiện ích ---------- */
+function vNews(){const cats=[...new Set(news.map(n=>n.cat))];const l=news.filter(n=>!S.nfilter||n.cat===S.nfilter);
+  return `${head('Tin tức pháp luật','Tin ngắn, chính xác, dễ hiểu. Nội dung dưới đây là tiêu đề mẫu cho giao diện.')}
+  <div class="chips"><button class="chip" aria-pressed="${!S.nfilter}" data-act="nf" data-k="">Tất cả</button>${cats.map(c=>`<button class="chip" aria-pressed="${S.nfilter===c}" data-act="nf" data-k="${c}">${c}</button>`).join('')}</div>
+  <div class="cards">${l.map(n=>`<article class="card stack">${pill(n.cat,'acc')}<h3>${n.t}</h3><p class="muted small" style="margin-top:auto">${fmt(n.d)} · ${n.r}</p></article>`).join('')}</div>`}
+function hash(s){let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;return h}
+function vFines(){const f=S.fine;
+  return `${head('Tra cứu phạt nguội','Nhập biển số để kiểm tra vi phạm giao thông qua hình ảnh.')}
+  <div class="row2" style="grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)"><form class="card stack" id="fineForm"><div class="field"><label for="plate">Biển số xe</label><input id="plate" placeholder="Ví dụ 37A-123.45" value="${esc(f?f.plate:'')}" autocomplete="off"></div>
+   <div class="field"><label for="vtype">Loại phương tiện</label><select id="vtype"><option>Ô tô</option><option>Xe máy</option></select></div><div id="fineErr" class="small" style="color:var(--risk)" role="alert"></div><button class="btn primary">${ic('search')}Tra cứu</button><p class="sample">Bản giao diện chưa kết nối cổng tra cứu của cơ quan chức năng. Kết quả chỉ để minh họa.</p></form>
+   <div>${!f?`<div class="card muted">Kết quả sẽ hiện ở đây.</div>`:f.n?`<div class="card stack"><div class="between"><b>${esc(f.plate)}</b>${pill(f.n+' vi phạm chưa xử lý','risk')}</div>${Array.from({length:f.n}).map((_,i)=>`<div class="alertbar"><div class="grow"><b>Không chấp hành tín hiệu đèn giao thông</b><p class="small">Thời gian: ${fmt(addDays(-8-i*5))} · Địa điểm: Ngã tư Lê Mao, TP. Vinh</p><p class="small">Mức phạt dự kiến: ${(f.p+i*1)*1} triệu đồng</p></div></div>`).join('')}<p class="small muted">Xem căn cứ xử phạt trong Nghị định 168/2024/NĐ-CP ở mục Tra cứu văn bản.</p></div>`:`<div class="card stack">${pill('Chưa phát hiện vi phạm','ok')}<p>Biển số <b>${esc(f.plate)}</b> chưa có vi phạm nào được ghi nhận.</p></div>`}</div></div>`}
+function vSaved(){const docs=S.saved.map(id=>docsDb.find(d=>d.id===id)).filter(Boolean);const q=S.savedQ||[];
+  return `${head('Tài liệu đã lưu','Văn bản và đoạn hợp đồng bạn đánh dấu để xem lại.')}
+  <h2>Văn bản pháp luật</h2>${docs.length?`<div class="rows">${docs.map(d=>`<button class="rowi" style="grid-template-columns:minmax(0,1fr) auto" data-act="openDoc" data-d="${d.id}"><div class="t">${esc(d.name)}<span>${d.no}</span></div>${pill(statusDoc[d.status][0],statusDoc[d.status][1])}</button>`).join('')}</div>`:`<div class="card muted">Chưa lưu văn bản nào. Mở một văn bản và chọn Lưu tài liệu.</div>`}
+  <h2>Đoạn trong hợp đồng</h2>${q.length?`<div class="rows">${q.map(x=>`<div class="rowi" style="grid-template-columns:minmax(0,1fr)"><div class="t" style="font-weight:500">${esc(x)}</div></div>`).join('')}</div>`:`<div class="card muted">Bôi đen một đoạn trong hợp đồng rồi chọn Lưu để thêm vào đây.</div>`}`}
+function vHistory(){return `${head('Lịch sử','Tra cứu và hoạt động gần đây của bạn.')}<div class="rows">${S.history.map(h=>`<button class="rowi" style="grid-template-columns:minmax(0,1fr) auto" data-go="${h.w}"><div class="t" style="font-weight:500">${esc(h.t)}</div><span class="muted small">${ago(h.a)}</span></button>`).join('')}</div>`}
+
+/* ---------- tải hợp đồng lên ---------- */
+function uploadModal(){modal(`<div class="between"><h2>Tải hợp đồng lên</h2><button class="icon-btn" data-act="closeModal" aria-label="Đóng">${ic('x')}</button></div>
+ <div class="drop" id="drop">${ic('upload')}<b>Kéo thả hoặc chọn tệp</b><span class="muted small">Ảnh chụp, PDF hoặc Word</span><label class="btn" for="fileIn" style="cursor:pointer">Chọn tệp</label><input type="file" id="fileIn" accept=".pdf,.doc,.docx,image/*" hidden></div>
+ <button class="btn" data-act="useSample">Dùng hợp đồng thuê nhà mẫu</button>`)}
+function process(name){
+  modal(`<h2>Đang xử lý</h2><div class="stack" id="proc">${['Đọc nội dung hợp đồng','Nhận diện điều khoản và thuật ngữ','Đối chiếu với văn bản pháp luật hiện hành'].map((s,i)=>`<div class="between" style="justify-content:flex-start;gap:10px" id="ps${i}"><span class="typing"><span></span><span></span><span></span></span><span>${s}</span></div>`).join('')}</div>`);
+  [0,1,2].forEach(i=>setTimeout(()=>{const e=$('#ps'+i);if(e)e.firstElementChild.outerHTML=`<span style="color:var(--ok)">${ic('check')}</span>`},500+i*600));
+  setTimeout(()=>{const n=contracts.length+1;const c=mk({id:'c'+n,name:name,type:'Thuê nhà',party:'Bên cho thuê (đang đọc)',value:'6.500.000 đ/tháng',start:addDays(-1),end:addDays(364)});c.clauses=CLAUSES_RENT(c);contracts.unshift(c);log('Tải lên: '+name,'contracts');closeModal();S.cid=c.id;S.rtab='sum';go('reader');toast('Đã đọc xong hợp đồng. Nội dung hiển thị là bản mẫu.')},2500)}
+
+/* ---------- sự kiện ---------- */
+document.addEventListener('click',e=>{
+  const g=e.target.closest('[data-go]');if(g){closeModal();go(g.dataset.go);return}
+  const t=e.target.closest('.term');if(t&&S.view==='reader'){const r=t.getBoundingClientRect();showPop(r,t.textContent,t.dataset.term,t.closest('[data-clause]'));return}
+  const a=e.target.closest('[data-act]');
+  if(!a){if(!e.target.closest('#pop')&&!e.target.closest('.doc'))hidePop();return}
+  const d=a.dataset,act=d.act;
+  if(act==='closeModal'){if(e.target===a||a.tagName==='BUTTON')closeModal();return}
+  switch(act){
+   case 'more':modal(`<div class="between"><h2>Thêm</h2><button class="icon-btn" data-act="closeModal" aria-label="Đóng">${ic('x')}</button></div><div class="stack">${[['templates','Mẫu và soạn thảo','pen'],['tos','Tóm tắt điều khoản','spark'],['lawyers','Luật sư','lawyer'],['docs','Tra cứu văn bản','book'],['news','Tin tức pháp luật','news'],['fines','Tra cứu phạt nguội','camera'],['saved','Tài liệu đã lưu','bookmark'],['history','Lịch sử','clock']].map(([id,l,i])=>`<button class="btn" style="justify-content:flex-start" data-go="${id}">${ic(i)}${l}</button>`).join('')}</div>`);break;
+   case 'upload':uploadModal();break;
+   case 'useSample':process('Hợp đồng thuê nhà (bản mẫu)');break;
+   case 'openC':S.cid=d.c;S.rtab='sum';log('Mở '+contracts.find(c=>c.id===d.c).name,'contracts');go('reader');break;
+   case 'openAlert':S.cid=d.c;S.rtab='law';go('reader');break;
+   case 'openUpdates':go('docs',{dtab:'new'});break;
+   case 'cflt':S.cflt=d.k;render();break;
+   case 'rtab':S.rtab=d.k;render();break;
+   case 'goClause':if(S.view==='reader')flash(d.k);break;
+   case 'hidePop':hidePop();break;
+   case 'askSel':hidePop();S.view='chat';render();ask('Giải thích giúp tôi đoạn này: '+d.q);history.replaceState(null,'','#chat');break;
+   case 'saveSel':S.savedQ=[d.q,...(S.savedQ||[])];toast('Đã lưu đoạn đã chọn');hidePop();break;
+   case 'useT':S.tid=d.t;go('draft');break;
+   case 'togS':{const t=templates.find(x=>x.id===S.tid);const l=S.textra[t.id]=S.textra[t.id]||[];const i=+d.i;const k=l.indexOf(i);k<0?l.push(i):l.splice(k,1);render();break}
+   case 'saveDraft':{const t=templates.find(x=>x.id===S.tid);const v=tvals(t);const n=contracts.length+1;const c=mk({id:'c'+n,name:t.name+' (bản nháp)',type:t.name.replace('Hợp đồng ','').replace(/^./,m=>m.toUpperCase()),party:v.b,value:v.price?money(v.price)+' đ':'',start:addDays(0),end:addDays(364)});c.clauses=CLAUSES_RENT(c);contracts.unshift(c);log('Lưu bản nháp '+t.name,'contracts');toast('Đã lưu vào Hợp đồng của tôi');go('contracts');break}
+   case 'tosSample':S.tosText=TOS_SAMPLE;render();break;
+   case 'tosRun':{const v=$('#tosIn').value.trim();S.tosText=$('#tosIn').value;if(v.length<20){$('#tosErr').textContent='Hãy dán nội dung điều khoản (ít nhất vài câu) để tóm tắt.';break}S.tosBusy=true;S.tosRes=null;render();setTimeout(()=>{S.tosBusy=false;S.tosRes=true;if(S.view==='tos')render()},1100);break}
+   case 'ask':ask(d.q);break;
+   case 'askProc':S.view='chat';render();ask('Thủ tục '+d.q+' cần những gì?');history.replaceState(null,'','#chat');break;
+   case 'askDoc':closeModal();S.view='chat';render();ask('Tóm tắt nội dung chính của '+d.q);history.replaceState(null,'','#chat');break;
+   case 'selP':S.pid=d.p;render();break;
+   case 'togP':{const l=S.pdone[S.pid]=S.pdone[S.pid]||[];const i=+d.i;const k=l.indexOf(i);k<0?l.push(i):l.splice(k,1);render();break}
+   case 'book':S.booked[d.l]=d.s;log('Đặt lịch '+lawyers.find(l=>l.id===d.l).name+', '+d.s,'lawyers');toast('Đã đặt lịch: '+d.s);render();break;
+   case 'dtab':S.dtab=d.k;render();break;
+   case 'openDoc':openDoc(d.d);break;
+   case 'saveDoc':{const i=S.saved.indexOf(d.d);i<0?S.saved.push(d.d):S.saved.splice(i,1);toast(i<0?'Đã lưu tài liệu':'Đã bỏ lưu');openDoc(d.d);break}
+   case 'nf':S.nfilter=d.k;render();break;
+  }
+});
+document.addEventListener('input',e=>{
+  const i=e.target;
+  if(i.id==='cq'){S.cq=i.value;const p=i.selectionStart;render();const n=$('#cq');n.focus();n.setSelectionRange(p,p)}
+  if(i.id==='dq'){S.dq=i.value;const p=i.selectionStart;render();const n=$('#dq');n.focus();n.setSelectionRange(p,p)}
+  if(i.dataset.field){const t=templates.find(x=>x.id===S.tid);tvals(t)[i.dataset.field]=i.value;$('#prev').textContent=draftText(t)}
+});
+document.addEventListener('change',e=>{
+  const i=e.target;const m={ctype:'ctype',dtype:'dtype',dfield:'dfield',dstat:'dstat',lf:'lf',la:'la'};
+  if(m[i.id]){S[m[i.id]]=i.value;render()}
+  if(i.id==='fileIn'&&i.files[0])process(i.files[0].name.replace(/\.[^.]+$/,''));
+});
+document.addEventListener('submit',e=>{
+  e.preventDefault();
+  if(e.target.id==='chatForm'){const v=$('#chatIn').value;ask(v)}
+  if(e.target.id==='fineForm'){const p=$('#plate').value.trim().toUpperCase();if(!/^\d{2}[A-Z]{1,2}[-\s]?\d{3,5}(\.\d{2})?$/.test(p)){$('#fineErr').textContent='Biển số chưa đúng định dạng. Ví dụ: 37A-123.45';return}
+    const h=hash(p);S.fine={plate:p,n:h%3===0?0:(h%2)+1,p:4};log('Tra cứu phạt nguội: '+p,'fines');render()}
+  if(e.target.id==='gs'){}
+});
+$('#gs').addEventListener('keydown',e=>{if(e.key==='Enter'){S.dq=e.target.value;S.dtab='search';e.target.value='';go('docs')}});
+document.addEventListener('dragover',e=>{const d=e.target.closest('#drop');if(d){e.preventDefault();d.classList.add('over')}});
+document.addEventListener('dragleave',e=>{const d=e.target.closest('#drop');if(d)d.classList.remove('over')});
+document.addEventListener('drop',e=>{const d=e.target.closest('#drop');if(d){e.preventDefault();const f=e.dataTransfer.files[0];if(f)process(f.name.replace(/\.[^.]+$/,''))}});
+document.addEventListener('mouseup',onSelect);document.addEventListener('touchend',onSelect);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){hidePop();closeModal()}});
+$('#themeBtn').addEventListener('click',()=>{const r=document.documentElement;const dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;r.dataset.theme=dark?'light':'dark'});
+(function init(){try{const h=location.hash.slice(1);if(TITLES[h]&&!['reader','draft'].includes(h))S.view=h}catch(e){}render()})();
+</script>
+
+</body></html>
